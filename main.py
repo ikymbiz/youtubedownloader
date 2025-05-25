@@ -1,11 +1,10 @@
 import streamlit as st
 import yt_dlp
-import os
 from pathlib import Path
 
 def download_video(url: str) -> Path | None:
     """
-    動画を一時的に保存し、ダウンロードリンク用のパスを返す
+    Downloads a YouTube video from the given URL and saves it to a specified directory.
     """
     try:
         output_dir = Path("downloads")
@@ -19,36 +18,36 @@ def download_video(url: str) -> Path | None:
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            with st.spinner("ダウンロード中..."):
+            with st.spinner("Downloading..."):
                 info_dict = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info_dict)
 
-        st.success("ダウンロード完了！")
+        st.success("Download complete!")
         return Path(filename)
 
     except Exception as e:
-        st.error(f'エラー: {e}')
+        st.error(f'Error: {e}')
         return None
 
 def main():
-    st.title('YouTube動画ダウンローダー（Streamlit Cloud用）')
-    st.write('YouTubeの動画URLを入力してください')
+    st.title('YouTube Downloader')
+    st.write('Input YouTube video URL to download the video.')
 
-    url = st.text_input('動画URL')
+    url = st.text_input('YouTube Video URL', placeholder='https://www.youtube.com/watch?v=example')
 
-    if st.button('ダウンロード開始'):
+    if st.button('Download Video'):
         if url:
             file_path = download_video(url)
             if file_path and file_path.exists():
                 with open(file_path, 'rb') as f:
                     st.download_button(
-                        label="動画をダウンロード",
+                        label="Download Video",
                         data=f,
                         file_name=file_path.name,
                         mime='video/mp4'
                     )
         else:
-            st.warning('URLを入力してください')
+            st.warning('Input a valid YouTube video URL.')
 
 if __name__ == '__main__':
     main()
